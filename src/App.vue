@@ -3,13 +3,13 @@ import { ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import { useTemplateParser } from './composables/useTemplateParser'
 
-const defaultTemplate = `Hello <b>{{receiver|text}}</b>, this is <i>{{sender|text}}</i>
+const defaultTemplate = `Hello {{receiver|text}}, this is {{sender|text}}
 
 {{message|text}}
 
-Contact me at {{email|email}} or visit {{website|url}}.
+Contact me at <i>{{email|email}}</i> or visit {{website|url}}.
 
-Phone: {{phone|phone}}, Order quantity: {{quantity|number}}`
+Phone: <b>{{phone|phone}}</b>, Order quantity: {{quantity|number}}`
 
 const template = ref(defaultTemplate)
 const { variables, output, error } = useTemplateParser(template)
