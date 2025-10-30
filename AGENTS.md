@@ -1,0 +1,1 @@
+- this project's UI should use a clean, simple, and professional design
