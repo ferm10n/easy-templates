@@ -1,4 +1,5 @@
 import { computed, ref, watch, type Ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 
 export interface TemplateVariable {
   name: string
@@ -14,7 +15,7 @@ export interface TemplateError {
 const VALID_TYPES = ['text', 'number', 'phone', 'email', 'url']
 
 export function useTemplateParser(template: Ref<string>) {
-  const variables = ref<Record<string, TemplateVariable>>({})
+  const variables = useLocalStorage<Record<string, TemplateVariable>>('easy-templates-variables', {})
   const error = ref<TemplateError | null>(null)
 
   watch(template, (templateValue) => {

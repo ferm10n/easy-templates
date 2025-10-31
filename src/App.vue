@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 import { useTemplateParser } from './composables/useTemplateParser'
 
 const defaultTemplate = `Hello {{receiver|text}}, this is {{sender|text}}
@@ -10,8 +11,13 @@ Contact me at <i>{{email|email}}</i> or visit {{website|url}}.
 
 Phone: <b>{{phone|phone}}</b>, Order quantity: {{quantity|number}}`
 
-const template = ref(defaultTemplate)
+const template = useLocalStorage('easy-templates-template', defaultTemplate)
 const { variables, output, error } = useTemplateParser(template)
+import { computed } from 'vue'
+
+const sortedVariables = computed(() =>
+  Object.values(variables.value).sort((a, b) => a.name.localeCompare(b.name))
+)
 const copied = ref(false)
 
 async function copyToClipboard() {
@@ -66,11 +72,10 @@ async function copyToClipboard() {
       <section v-if="Object.keys(variables).length > 0" class="section">
         <h2 class="section-label">Fill in the values</h2>
         <div class="form-grid">
-          <div v-for="variable in variables" :key="variable.name" class="form-field">
+          <div v-for="variable in sortedVariables" :key="variable.name" class="form-field">
             <label :for="variable.name" class="field-label">
               {{ variable.name }}
             </label>
-            
             <input
               :id="variable.name"
               v-model="variable.value"
