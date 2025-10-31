@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useClipboard } from '@vueuse/core'
 import { useTemplateParser } from './composables/useTemplateParser'
 
 const defaultTemplate = `Hello {{receiver|text}}, this is {{sender|text}}
@@ -13,7 +12,28 @@ Phone: <b>{{phone|phone}}</b>, Order quantity: {{quantity|number}}`
 
 const template = ref(defaultTemplate)
 const { variables, output, error } = useTemplateParser(template)
-const { copy, copied } = useClipboard({ source: output })
+const copied = ref(false)
+
+async function copyToClipboard() {
+  try {
+    const htmlBlob = new Blob([output.value.replace(/\n/g, '<br>')], { type: 'text/html' })
+    const textBlob = new Blob([output.value.replace(/<[^>]*>/g, '')], { type: 'text/plain' })
+    
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': htmlBlob,
+        'text/plain': textBlob
+      })
+    ])
+    
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy:', err)
+  }
+}
 </script>
 
 <template>
@@ -64,7 +84,7 @@ const { copy, copied } = useClipboard({ source: output })
       <section class="section">
         <div class="section-header">
           <h2 class="section-label">Output</h2>
-          <button @click="copy()" class="copy-btn" :class="{ copied }">
+          <button @click="copyToClipboard()" class="copy-btn" :class="{ copied }">
             {{ copied ? '✓ Copied!' : 'Copy Output' }}
           </button>
         </div>
